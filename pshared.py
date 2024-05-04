@@ -29,6 +29,7 @@ class pshared:
         formatted_perc = "{:.3f}".format(perc_correct)
         print("\t% predicciones correctas:\t\t\t\t"+str(formatted_perc)+"%")
 
+    # Give prediction
     def predict(self, PC):
         index = self.history_table[(int(PC) % self.size_of_history_table)]
         pattern_table_entry = self.pattern_table[index]
@@ -37,6 +38,7 @@ class pshared:
         else:
             return "T"
 
+    # Update prediction
     def update(self, PC, result, prediction):
         htable_index = int(PC) % self.size_of_history_table
         ptable_index = self.history_table[htable_index]
@@ -49,31 +51,16 @@ class pshared:
             self.history_table[htable_index] = self.update_lhist(self.history_table[htable_index], 0)
 
         #Update entry accordingly
-        if pattern_table_entry == 0 and result == "N": # SATURATION
+        if pattern_table_entry == 0 and result == "N": 
             updated_pattern_table_entry = pattern_table_entry
-            #print(PC,pattern_table_entry,updated_pattern_table_entry,result,prediction)
         elif pattern_table_entry != 0 and result == "N":
             updated_pattern_table_entry = pattern_table_entry - 1
-            #print(PC,pattern_table_entry,updated_pattern_table_entry,result,prediction)
-        elif pattern_table_entry == 3 and result == "T": # SATURATION
+        elif pattern_table_entry == 3 and result == "T": 
             updated_pattern_table_entry = pattern_table_entry
-            #print(PC,pattern_table_entry,updated_pattern_table_entry,result,prediction)
         else:
             updated_pattern_table_entry = pattern_table_entry + 1
-            #print(PC,pattern_table_entry,updated_pattern_table_entry,result,prediction)
+
         self.pattern_table[ptable_index] = updated_pattern_table_entry
-
-        # if result == "T":
-        #     self.history_table[htable_index] = self.update_lhist(self.history_table[htable_index], 1)
-        # else:
-        #     self.history_table[htable_index] = self.update_lhist(self.history_table[htable_index], 0)
-
-        #  # Update local history
-        # if result == "T":
-        #     self.history_table[htable_index] = self.update_lhist(self.history_table[htable_index], 1)
-        # else:
-        #     self.history_table[htable_index] = self.update_lhist(self.history_table[htable_index], 0)
-
 
          #Update stats
         if result == "T" and result == prediction:
@@ -87,12 +74,12 @@ class pshared:
 
         self.total_predictions += 1
 
-
+    # Update local history register
     def update_lhist(self, lhist, taken):
-            # Shift the GHR to the left by one bit
+            # Shift the LHR to the left by one bit
             lhist = (lhist << 1) & ((1 << self.lhist_size) - 1)  # Mask to maintain register size
             # Set the LSB to 1 if the branch is taken, else 0
             if taken:
                 lhist |= 1 
-            
+
             return lhist
